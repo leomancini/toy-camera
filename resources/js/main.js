@@ -6,7 +6,6 @@ function initialize() {
     window.selectedListItemIndex = 0;
     let cameraSize;
 
-
     if (window.innerWidth < 668) {
         cameraSize = window.innerWidth; 
     } else {
