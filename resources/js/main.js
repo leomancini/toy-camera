@@ -2,17 +2,34 @@ window.onload = function() {
     initialize();
 };
 
+window.onresize = () => {
+    if (window.innerWidth < 890) {
+        cameraSize = window.innerWidth - 80; 
+    } else {
+        cameraSize = 296;
+    }
+
+    window.params = {
+        size: cameraSize,
+        frameRate: 60
+    };
+
+    let canvas = document.querySelector('canvas#camera');
+    canvas.width = window.params.size;
+    canvas.height = window.params.size;
+}
+
 function initialize() {
     window.selectedListItemIndex = 0;
     let cameraSize;
 
-    if (window.innerWidth < 668) {
-        cameraSize = window.innerWidth; 
+    if (window.innerWidth < 890) {
+        cameraSize = window.innerWidth - 80; 
     } else {
-        cameraSize = 300;
+        cameraSize = 296;
     }
 
-    let params = {
+    window.params = {
         size: cameraSize,
         frameRate: 60
     };
@@ -20,8 +37,8 @@ function initialize() {
     if ('mediaDevices' in navigator && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({
             video: {
-                width: params.size,
-                height: params.size,
+                width: window.params.size,
+                height: window.params.size,
                 audio: false,
                 facingMode: 'environment'
             }
@@ -32,8 +49,8 @@ function initialize() {
             video.onloadedmetadata = function() { video.play(); };
 
             let canvas = document.querySelector('canvas#camera');
-            canvas.width  = params.size;
-            canvas.height = params.size;
+            canvas.width = window.params.size;
+            canvas.height = window.params.size;
 
             let context = canvas.getContext('2d');
 
@@ -42,7 +59,7 @@ function initialize() {
             video.addEventListener('play', function() {
                 context.drawImage(this, 0, 0, canvas.width, canvas.height);
 
-                drawPixelatedImage(video, canvas, context, params);
+                drawPixelatedImage(video, canvas, context);
             }, false);
         }).catch(function(error) {
             alert(error);
@@ -129,20 +146,21 @@ function checkKey(e) {
     }
 }
 
-function drawPixelatedImage(video, canvas, context, params) {
+function drawPixelatedImage(video, canvas, context) {
     // Inspired & based on https://nathanwillson.com/blog/posts/conway/
-    let resolution = 30;
+    let defaultResolution = 30;
+    let resolution = defaultResolution;
 
     if (window.selectedListItemIndex) {
         switch (window.selectedListItemIndex) {
             case 0:
-                resolution = 30;
+                resolution = defaultResolution;
             break;
             case 1:
                 resolution = 100;
             break;
             case 2:
-                resolution = params.size;
+                resolution = window.params.size;
             break;
         }
     }
@@ -152,5 +170,5 @@ function drawPixelatedImage(video, canvas, context, params) {
     context.imageSmoothingEnabled = false;
     context.drawImage(canvas, 0, 0, resolution, resolution, 0, 0, canvas.width, canvas.height);
 
-    setTimeout(drawPixelatedImage, params.frameRate * 1, video, canvas, context, params);
+    setTimeout(drawPixelatedImage, window.params.frameRate * 1, video, canvas, context);
 }
